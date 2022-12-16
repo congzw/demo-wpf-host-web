@@ -4,19 +4,21 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.Web
 {
-    public class Startup
+    public class TheStartup
     {
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddTheSwaggerGen();
+
+            services.AddSingleton(TheWebHelper.Instance);
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            TheWebHelper.Instance.RootServiceProvider = app.ApplicationServices;
 
-            WebManager.Instance.RootServiceProvider = app.ApplicationServices;
+            app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
             app.UseTheSwagger();

@@ -16,22 +16,22 @@ namespace Demo.Wpf
             this.Closing += MainWindow_Closing;
         }
 
-        private WebManager _webManager;
+        //private WebManager _webManager;
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            _webManager = WebManager.Instance;
-            await Task.Run(() => _webManager.Start());
+            //_webManager = WebManager.Instance;
+            //await Task.Run(() => _webManager.Start());
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _webManager.Close();
+            //_webManager.Close();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            _webManager.OpenBrowserIf();
+            TheWebHelper.Instance.OpenBrowserIf();
         }
     }
 }

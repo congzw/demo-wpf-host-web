@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.Web.Api
 {
@@ -29,5 +31,41 @@ namespace Demo.Web.Api
             }
             return DateTime.Now;
         }
+
+        [HttpGet]
+        public List<string> GetServices()
+        {
+            var list = new List<string>();
+
+            var test1 = _serviceProvider.GetService<IFooService1>();
+            list.Add($"IFooService1: {test1?.GetDesc()}");
+
+            var test2 = _serviceProvider.GetService<IFooService2>();
+            list.Add($"IFooService2: {test2?.GetDesc()}");
+
+            return list;
+        }
     }
+
+    #region demo
+
+    public interface IFooService1
+    {
+        string GetDesc();
+    }
+
+    public interface IFooService2
+    {
+        string GetDesc();
+    }
+
+    public class FooService1 : IFooService1
+    {
+        public string GetDesc()
+        {
+            return $"{this.GetType().FullName} - {this.GetHashCode()}";
+        }
+    }
+
+    #endregion
 }

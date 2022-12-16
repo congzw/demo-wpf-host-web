@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Demo.Web
 {
-    public class WebManager : IDisposable
+    public class TheWebHelper
     {
-        public static WebManager Instance = new WebManager();
+        public static TheWebHelper Instance = new TheWebHelper();
+
         public IServiceProvider RootServiceProvider { get; set; }
 
-        private IHost _host;
-        
         public void OpenBrowserIf()
         {
             if (RootServiceProvider == null)
@@ -30,7 +27,7 @@ namespace Demo.Web
                 {
                     return;
                 }
-            
+
                 if (string.IsNullOrWhiteSpace(url))
                 {
                     return;
@@ -61,37 +58,6 @@ namespace Demo.Web
                     //    throw;
                     //}
                 }
-            }
-        }
-
-        public void Start()
-        {
-            if (_host != null)
-            {
-                return;
-            }
-
-            _host = Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webHostBuilder =>
-                {
-                    webHostBuilder.UseStartup<Startup>();
-                })
-                .Build();
-            _host.Start();
-        }
-
-        public void Close()
-        {
-            _host.Dispose();
-            _host = null;
-        }
-
-        public void Dispose()
-        {
-            if (_host != null)
-            {
-                _host.Dispose();
-                _host = null;
             }
         }
     }
