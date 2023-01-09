@@ -3,13 +3,8 @@ using Demo.Web.Api;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Extensions.Logging;
+using NLog;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -17,20 +12,20 @@ namespace Demo.Wpf
 {
     public partial class App : Application
     {
-        //private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceProvider _serviceProvider;
         private readonly IHost _host;
 
         public App()
         {
             _host = Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<TheStartup>();
-                })
+              .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<TheStartup>();
+            })
               .ConfigureServices((hostContext, services) =>
               {
-                  ConfigureServices(services);
+                  services.AddTheAppServices();
               })
               .Build();
 
@@ -41,7 +36,7 @@ namespace Demo.Wpf
 
         protected override async void OnStartup(StartupEventArgs e)
         {
-            LogTitle("Application Startup", true);
+            LogTitle("Main Startup", true);
 
             await _host.StartAsync();
 
@@ -49,6 +44,7 @@ namespace Demo.Wpf
             {
                 //启动主窗体
                 var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
+                mainWindow.Host = _host;
                 mainWindow.Show();
             }
 
@@ -57,18 +53,20 @@ namespace Demo.Wpf
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            using (_host)
-            {
-                //Microsoft.Hosting.Lifetime: Information: Waiting for the host to be disposed.Ensure all 'IHost' instances are wrapped in 'using' blocks.
-                //await _host.StopAsync();
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
-                    lifetime.StopApplication();
-                }
-            }
-            LogTitle("Application Exit", true);
-            //LogManager.Shutdown();
+            //using (_host)
+            //{
+            //    //Microsoft.Hosting.Lifetime: Information: Waiting for the host to be disposed.Ensure all 'IHost' instances are wrapped in 'using' blocks.
+            //    //await _host.StopAsync();
+            //    //using (var scope = _serviceProvider.CreateScope())
+            //    //{
+            //    //    var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
+            //    //    lifetime.StopApplication();
+            //    //}
+            //    //await _host.StopAsync();
+            //}
+
+            LogTitle("Main Exit", true);
+            LogManager.Shutdown();
             base.OnExit(e);
         }
 
@@ -96,41 +94,25 @@ namespace Demo.Wpf
             };
         }
 
-        private void ConfigureServices(IServiceCollection services)
-        {
-            services.AddSingleton<MainWindow>();
-            //services.AddHostedService<TheWebHost>();
-
-            services.AddTransient<IFooService1, FooService1>();
-            services.AddSingleton<IFooService2, FooService2>();
-
-
-            //services.AddTheNlog();
-            //services.AddSingleton<SettingWindow>();
-            //services.AddSingleton<PlayCtrlWindow>();
-            //services.AddWorkers();
-            //services.AddTransient<IDemoSettingService, DemoSettingService>();
-        }
-
         private void Log(string msg)
         {
-            //_logger.Info(msg);
+            _logger.Info(msg);
         }
 
         private void LogError(Exception ex, string exMsg)
         {
-            //_logger.Error(ex, exMsg);
+            _logger.Error(ex, exMsg);
         }
 
         private void LogTitle(string msg, bool appendNewLine = false)
         {
-            //var append = appendNewLine ? Environment.NewLine : string.Empty;
-            //_logger.Info($"#################################");
-            //_logger.Info($"       {msg}");
-            //_logger.Info($"#################################{append}");
+            var append = appendNewLine ? Environment.NewLine : string.Empty;
+            _logger.Info($"#################################");
+            _logger.Info($"       {msg}");
+            _logger.Info($"#################################{append}");
         }
     }
-    
+
     public class FooService2 : IFooService2
     {
         public string GetDesc()

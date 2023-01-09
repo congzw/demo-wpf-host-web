@@ -6,7 +6,7 @@ namespace Demo.Web.Api
 
     [IgnoreAntiforgeryToken]
     [ApiController]
-    public abstract class BaseApi : IApi
+    public abstract class BaseApi : ControllerBase, IApi
     {
         [ApiExplorerSettings(GroupName = "HideGroup")]
         [HttpGet]

@@ -1,6 +1,8 @@
 ﻿using Demo.Web.Bootstrap;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Demo.Workers;
+using Common.Workers;
 
 namespace Demo.Web
 {
@@ -8,6 +10,10 @@ namespace Demo.Web
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHostedService<HostEventService>();
+            services.AddHostedService<SimpleWorker>();
+            services.AddSingleton<SimpleWorkerHelper>();
+
             services.AddControllers();
             services.AddTheSwaggerGen();
 

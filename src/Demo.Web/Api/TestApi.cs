@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Demo.Web.Api
 {
@@ -44,6 +45,30 @@ namespace Demo.Web.Api
             list.Add($"IFooService2: {test2?.GetDesc()}");
 
             return list;
+        }
+
+
+        [HttpPost]
+        [Route("Api/Demo/App/ShutDown")]
+        public string AppShutDown([FromServices] IServiceProvider serviceProvider)
+        {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
+                lifetime.StopApplication();
+            }
+            return "OK";
+        }
+
+        [HttpGet]
+        [Route("Api/Demo/App/GetLifetime")]
+        public string GetLifetime([FromServices] IServiceProvider serviceProvider)
+        {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
+                return lifetime.GetType().FullName;
+            }
         }
     }
 
