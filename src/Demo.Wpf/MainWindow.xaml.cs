@@ -50,7 +50,6 @@ namespace Demo.Wpf
                 }
                 //await Host.StopAsync();
             }
-            Thread.Sleep(15000);
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)

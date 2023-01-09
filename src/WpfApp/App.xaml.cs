@@ -8,13 +8,10 @@ using System.Windows;
 using NLog.Extensions.Logging;
 using NLog;
 using WpfApp.Workers;
-using NLog.Fluent;
+using System.Threading.Tasks;
 
 namespace WpfApp
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
         private IHost _host;
@@ -22,12 +19,6 @@ namespace WpfApp
 
         public App()
         {
-            LogTitle("Main App Ctor", true);
-
-            this.Startup += App_Startup;
-            this.Exit += App_Exit;
-
-            //_host = new HostBuilder().Build();
             _host = new HostBuilder()
             .ConfigureAppConfiguration((context, configurationBuilder) =>
             {
@@ -40,7 +31,8 @@ namespace WpfApp
                 services.AddHostedService<SimpleWorker>();
                 services.AddSingleton<MainWindow>();
             })
-            .ConfigureLogging((context, logging) => {
+            .ConfigureLogging((context, logging) =>
+            {
                 logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 logging.AddNLog(new NLogProviderOptions
                 {
@@ -51,22 +43,32 @@ namespace WpfApp
             .Build();
         }
 
-        private async void App_Startup(object sender, StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            LogTitle("Main App_Startup", true);
-            await _host.StartAsync();
+            base.OnStartup(e);
+            LogTitle("App.OnStartup", false);
+
+            Log("host Start");
+            _host.Start();
+            Log("host Start >>>");
             var mainWindow = _host.Services.GetService<MainWindow>();
+            mainWindow.Host = _host;
             mainWindow.Show();
         }
 
-        private async void App_Exit(object sender, ExitEventArgs e)
+
+        protected override void OnExit(ExitEventArgs e)
         {
-            LogTitle("Main App_Exit BEGIN", true);
+            //this method cannot be async, it MUST wait!
             using (_host)
             {
-                await _host.StopAsync(TimeSpan.FromSeconds(5));
+                Log("host StopAsync");
+                Task.Run(async () => await _host.StopAsync()).Wait();
+                Log("host StopAsync >>>");
             }
-            LogTitle("Main App_Exit END", true);
+
+            LogTitle("App.OnExit", true);
+            base.OnExit(e);
         }
 
         private void Log(string msg)

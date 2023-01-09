@@ -25,25 +25,13 @@ namespace WpfApp.Workers
             await base.StartAsync(cancellationToken);
         }
 
-        public override async Task StopAsync(CancellationToken cancellationToken)
-        {
-            Log("StopAsync Begin");
-            _shouldStop = true;
-            while (!_cleanCompleted)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
-            Log("StopAsync End");
-            await base.StopAsync(cancellationToken);
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                Log("ExecuteAsync Begin");
+                Log("ExecuteAsync");
                 // 这里实现实际的业务逻辑
-                while (!stoppingToken.IsCancellationRequested)
+                while (true)
                 {
                     if (_shouldStop)
                     {
@@ -51,22 +39,40 @@ namespace WpfApp.Workers
                         break;
                     }
 
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        Log("stoppingToken IsCancellationRequested");
+                        break;
+                    }
+
                     if (!_simpleWorkerHelper.ShouldWorking)
                     {
+                        Log("wait for working command!");
                         await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                         continue;
                     }
-
                     await DoTheWork(stoppingToken);
                     await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                 }
             }
+            catch (Exception ex)
+            {
+                Log(ex.Message);
+            }
             finally
             {
-                Log("ExecuteAsync DoTheClean");
-                await DoTheClean();
-                Log("ExecuteAsync End");
+                //no change to get here!!!
+                Log("exit looping!");
             }
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Log("StopAsync");
+            _shouldStop = true;
+            await DoTheClean();
+            Log("StopAsync >>>");
+            await base.StopAsync(cancellationToken);
         }
 
         private async Task DoTheWork(CancellationToken cancellationToken)

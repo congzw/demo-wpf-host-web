@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Web", "Demo.Web\Demo.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Libs", "Demo.Libs\Demo.Libs.csproj", "{DCCD20C7-FFFA-4EF3-9A1A-55073726DC17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp", "WpfApp\WpfApp.csproj", "{EBDC2167-418D-4B94-8FA4-272D2CAE3638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp", "WpfApp\WpfApp.csproj", "{EBDC2167-418D-4B94-8FA4-272D2CAE3638}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
