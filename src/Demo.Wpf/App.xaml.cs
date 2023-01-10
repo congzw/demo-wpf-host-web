@@ -3,6 +3,7 @@ using Demo.Web.Api;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NLog;
 using System;
 using System.Threading.Tasks;
@@ -34,38 +35,47 @@ namespace Demo.Wpf
             GlobalExceptionHandle();
         }
 
-        protected override async void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            LogTitle("Main Startup", true);
+            base.OnStartup(e);
+            LogTitle("App.OnStartup", false);
 
-            await _host.StartAsync();
+            Log("host Start");
+            _host.Start();
+            Log("host Start >>>");
 
             using (var scope = _serviceProvider.CreateScope())
             {
-                //启动主窗体
-                var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
-                mainWindow.Host = _host;
-                mainWindow.Show();
-            }
+                var theLogger = scope.ServiceProvider.GetRequiredService<ILogger<WpfAppControl>>();
+                var wpfAppControl = scope.ServiceProvider.GetRequiredService<WpfAppControl>();
+                wpfAppControl.Logger = theLogger;
+                wpfAppControl.Start();
 
-            base.OnStartup(e);
+                var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
+                mainWindow.Show();
+
+                //var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
+                //var wpfAppControl = scope.ServiceProvider.GetRequiredService<WpfAppControl>();
+                //wpfAppControl.Logger = theLogger;
+                //wpfAppControl.TheMainWindow = mainWindow;
+                //wpfAppControl.Start();
+                //mainWindow.Show();
+            }
         }
 
-        protected override async void OnExit(ExitEventArgs e)
+        protected override void OnExit(ExitEventArgs e)
         {
-            //using (_host)
-            //{
-            //    //Microsoft.Hosting.Lifetime: Information: Waiting for the host to be disposed.Ensure all 'IHost' instances are wrapped in 'using' blocks.
-            //    //await _host.StopAsync();
-            //    //using (var scope = _serviceProvider.CreateScope())
-            //    //{
-            //    //    var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
-            //    //    lifetime.StopApplication();
-            //    //}
-            //    //await _host.StopAsync();
-            //}
+            //this method cannot be async, it MUST wait!
+            using (_host)
+            {
+                Log("host StopAsync");
+                //Task.Run(async () => await _host.StopAsync()).Wait();
+                //如果后台的清理任务超过某个值，也强制退出
+                Task.Run(async () => await _host.StopAsync()).Wait(TimeSpan.FromSeconds(30));
+                Log("host StopAsync >>>");
+            }
 
-            LogTitle("Main Exit", true);
+            LogTitle("App.OnExit", true);
             LogManager.Shutdown();
             base.OnExit(e);
         }

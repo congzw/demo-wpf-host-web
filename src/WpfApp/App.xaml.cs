@@ -63,7 +63,8 @@ namespace WpfApp
             using (_host)
             {
                 Log("host StopAsync");
-                Task.Run(async () => await _host.StopAsync()).Wait();
+                //给予一个最大的等待时间长度，来清理和结束后台任务
+                Task.Run(async () => await _host.StopAsync()).Wait(TimeSpan.FromSeconds(30));
                 Log("host StopAsync >>>");
             }
 

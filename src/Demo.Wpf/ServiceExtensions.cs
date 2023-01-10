@@ -20,6 +20,7 @@ namespace Demo.Wpf
                 });
             });
 
+            services.AddSingleton(WpfAppControl.Instance);
             services.AddSingleton<MainWindow>();
             //services.AddHostedService<TheWebHost>();
 

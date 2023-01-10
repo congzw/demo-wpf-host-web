@@ -9,7 +9,6 @@ namespace Demo.Workers
     public class SimpleWorker : BackgroundService
     {
         private bool _shouldStop = false;
-        private bool _cleanCompleted = false;
         private readonly ILogger<SimpleWorker> _logger;
         private readonly SimpleWorkerHelper _simpleWorkerHelper;
 
@@ -25,25 +24,13 @@ namespace Demo.Workers
             await base.StartAsync(cancellationToken);
         }
 
-        public override async Task StopAsync(CancellationToken cancellationToken)
-        {
-            Log("StopAsync Begin");
-            _shouldStop = true;
-            while (!_cleanCompleted)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
-            Log("StopAsync End");
-            await base.StopAsync(cancellationToken);
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                Log("ExecuteAsync Begin");
+                Log("ExecuteAsync");
                 // 这里实现实际的业务逻辑
-                while (!stoppingToken.IsCancellationRequested)
+                while (true)
                 {
                     if (_shouldStop)
                     {
@@ -51,22 +38,39 @@ namespace Demo.Workers
                         break;
                     }
 
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        Log("stoppingToken IsCancellationRequested");
+                        break;
+                    }
+
                     if (!_simpleWorkerHelper.ShouldWorking)
                     {
+                        Log("wait for working command!");
                         await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                         continue;
                     }
-
                     await DoTheWork(stoppingToken);
                     await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                 }
             }
+            catch (Exception ex)
+            {
+                Log("ex: " + ex.Message);
+            }
             finally
             {
-                Log("ExecuteAsync DoTheClean");
-                await DoTheClean();
-                Log("ExecuteAsync End");
+                Log("exit looping!");
             }
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            Log("StopAsync");
+            _shouldStop = true;
+            await DoTheClean();
+            Log("StopAsync >>>");
+            await base.StopAsync(cancellationToken);
         }
 
         private async Task DoTheWork(CancellationToken cancellationToken)
@@ -78,14 +82,12 @@ namespace Demo.Workers
 
         private async Task DoTheClean()
         {
-            //clean
-            for (int i = 0; i < 3; i++)
+            //mock some clean works
+            for (int i = 0; i < 10; i++)
             {
-                Log("DoTheClean => " + (3 - i));
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                Log("DoTheClean => " + (10 - i));
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
             }
-            _cleanCompleted = true;
-            Log("DoTheClean => completed!");
             await Task.CompletedTask;
         }
 

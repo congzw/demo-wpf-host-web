@@ -10,9 +10,9 @@ namespace Demo.Web
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHostedService<HostEventService>();
             services.AddHostedService<SimpleWorker>();
             services.AddSingleton<SimpleWorkerHelper>();
+            services.AddHostedService<HostEventService>();
 
             services.AddControllers();
             services.AddTheSwaggerGen();

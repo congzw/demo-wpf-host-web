@@ -22,10 +22,11 @@ namespace Common.Workers
 
             _hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
-                var osInfo = OsInfo.Create();
+                Log($"{theName}.ApplicationStarted");
 
+                var osInfo = OsInfo.Create();
                 Log($"#################################");
-                Log($"       ApplicationStarted => {theName}");
+                Log($"    OsInfo    ");
                 Log($"OSDescription: {osInfo.OSDescription}");
                 Log($"RuntimeIdentifier: {osInfo.RuntimeIdentifier}");
                 Log($"OSArchitecture: {osInfo.OSArchitecture}");
@@ -38,29 +39,27 @@ namespace Common.Workers
 
             _hostApplicationLifetime.ApplicationStopping.Register(() =>
             {
-                Log($"#################################");
-                Log($"       ApplicationStopping => {theName}");
-                Log($"################################# {Environment.NewLine}");
+                Log($"{theName}.ApplicationStopping");
                 //todo
             });
 
             _hostApplicationLifetime.ApplicationStopped.Register(() =>
             {
-                Log($"#################################");
-                Log($"       ApplicationStopped => {theName}");
-                Log($"################################# {Environment.NewLine}");
+                Log($"{theName}.ApplicationStopped");
                 //todo
             });
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            Log("ExecuteAsync");
             return Task.CompletedTask;
         }
 
         private void Log(string msg)
         {
-            _logger.LogInformation(msg);
+            _logger.LogDebug(msg);
+            //_logger.LogInformation(msg);
         }
     }
 
