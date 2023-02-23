@@ -47,6 +47,16 @@ namespace Demo.Web.Api
             return list;
         }
 
+        [HttpGet]
+        public string SendMessageToWindow([FromQuery]string msg)
+        {
+            var svc = _serviceProvider.GetService<IWinControlService>();
+            if (svc == null)
+            {
+                return "Fail";
+            }
+            return svc.SendMessage(msg);
+        }
 
         [HttpPost]
         [Route("Api/Demo/App/ShutDown")]
@@ -90,6 +100,11 @@ namespace Demo.Web.Api
         {
             return $"{this.GetType().FullName} - {this.GetHashCode()}";
         }
+    }
+
+    public interface IWinControlService
+    {
+        string SendMessage(string msg);
     }
 
     #endregion

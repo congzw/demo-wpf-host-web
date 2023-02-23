@@ -33,6 +33,8 @@ namespace Demo.Wpf
             //services.AddWorkers();
             //services.AddTransient<IDemoSettingService, DemoSettingService>();
 
+            services.AddSingleton<IWinControlService, WinControlService>();
+
             return services;
         }
     }

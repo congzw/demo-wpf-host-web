@@ -52,6 +52,7 @@ namespace Demo.Wpf
                 wpfAppControl.Start();
 
                 var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
+                WinControlService.TheMainWindow = mainWindow;
                 mainWindow.Show();
 
                 //var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();

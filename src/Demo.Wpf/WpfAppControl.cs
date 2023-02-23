@@ -1,4 +1,6 @@
+using Demo.Web.Api;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Windows;
 
 namespace Demo.Wpf
